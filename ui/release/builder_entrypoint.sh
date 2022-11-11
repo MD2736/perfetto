@@ -31,7 +31,7 @@ mount
 
 cd ~/workspace/
 ls -A1 | xargs rm -rf
-UPSTREAM="https://android.googlesource.com/platform/external/perfetto.git"
+UPSTREAM="https://github.com/MD2736/perfetto.git"
 git clone $UPSTREAM upstream
 
 cd upstream/
