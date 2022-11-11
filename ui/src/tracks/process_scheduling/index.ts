@@ -272,7 +272,7 @@ class ProcessSchedulingTrack extends Track<Config, Data> {
 
     const hoveredThread = globals.threads.get(this.utidHoveredInThisTrack);
     if (hoveredThread !== undefined && this.mousePos !== undefined) {
-      const tidText = `T: ${hoveredThread.threadName} [${hoveredThread.tid}]`;
+      const tidText = `T: ${hoveredThread.threadName} `;
       if (hoveredThread.pid) {
         const pidText = `P: ${hoveredThread.procName} [${hoveredThread.pid}]`;
         this.drawTrackHoverTooltip(ctx, this.mousePos, pidText, tidText);

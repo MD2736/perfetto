@@ -29,12 +29,12 @@ mount
 # GitHub is used only as a trigger. This is because Google Cloud Build doesn't
 # support yet triggering from Gerrit.
 
-cd /workspace/
+cd ~/workspace/
 ls -A1 | xargs rm -rf
 UPSTREAM="https://android.googlesource.com/platform/external/perfetto.git"
 git clone $UPSTREAM upstream
 
 cd upstream/
 git rev-parse HEAD
-mkdir /workspace/tmp
-python3 -u "$CUR_DUR/build_all_channels.py" --upload --tmp=/workspace/tmp
+mkdir ~/workspace/tmp
+python3 -u "$CUR_DUR/build_all_channels.py" --upload --tmp=~/workspace/tmp

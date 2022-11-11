@@ -312,9 +312,9 @@ class CpuSliceTrack extends Track<Config, Data> {
             procName = procName.substring(procName.lastIndexOf('/') + 1);
           }
           title = `${procName} [${threadInfo.pid}]`;
-          subTitle = `${threadInfo.threadName} [${threadInfo.tid}]`;
+          subTitle = `${threadInfo.threadName} `;
         } else {
-          title = `${threadInfo.threadName} [${threadInfo.tid}]`;
+          title = `${threadInfo.threadName} `;
         }
       }
       title = cropText(title, charWidth, rectWidth);
@@ -393,7 +393,7 @@ class CpuSliceTrack extends Track<Config, Data> {
 
     const hoveredThread = globals.threads.get(this.utidHoveredInThisTrack);
     if (hoveredThread !== undefined && this.mousePos !== undefined) {
-      const tidText = `T: ${hoveredThread.threadName} [${hoveredThread.tid}]`;
+      const tidText = `T: ${hoveredThread.threadName} `;
       if (hoveredThread.pid) {
         const pidText = `P: ${hoveredThread.procName} [${hoveredThread.pid}]`;
         this.drawTrackHoverTooltip(ctx, this.mousePos, pidText, tidText);

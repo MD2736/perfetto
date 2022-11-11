@@ -46,7 +46,14 @@ import {
   convertTraceToSystraceAndDownload,
 } from './trace_converter';
 
-const ALL_PROCESSES_QUERY = 'select name, pid from process order by name;';
+const ALL_PROCESSES_QUERY = "select s.id,  s.ts, s.dur,s.cat, a.display_value,s.track_id from args a join slice s on s.arg_set_id=a.arg_set_id where a.key='args.Details' order by s.id ASC";
+const SHOW_WARNINGS = "SELECT slice.ts, slice.dur, slice.track_id, slice.name, args.display_value FROM slice JOIN thread_track   ON slice.track_id = thread_track.id JOIN thread   ON thread_track.utid = thread.utid JOIN args   ON slice.arg_set_id=args.arg_set_id Where thread.name = '_ERROR/WARNING' and args.key='args.Details' ";
+
+const SHOW_CAMERA_COMMUNICATION = "SELECT slice.ts, slice.dur, slice.track_id, slice.name, args.display_value FROM slice JOIN thread_track   ON slice.track_id = thread_track.id JOIN thread   ON thread_track.utid = thread.utid JOIN args   ON slice.arg_set_id=args.arg_set_id Where thread.name LIKE '%Camera%' and slice.Name not like '%(Queued)%'   and args.key='args.Details'  ";
+
+
+
+
 
 const CPU_TIME_FOR_PROCESSES = `
 select
@@ -193,12 +200,6 @@ const SECTIONS: Section[] = [
     expanded: true,
     items: [
       {t: 'Open trace file', a: popupFileSelectionDialog, i: 'folder_open'},
-      {
-        t: 'Open with legacy UI',
-        a: popupFileSelectionDialogOldUI,
-        i: 'filter_none',
-      },
-      {t: 'Record new trace', a: navigateRecord, i: 'fiber_smart_record'},
     ],
   },
 
@@ -225,131 +226,27 @@ const SECTIONS: Section[] = [
         checkDownloadDisabled: true,
       },
       {t: 'Query (SQL)', a: navigateAnalyze, i: 'control_camera'},
-      {t: 'Metrics', a: navigateMetrics, i: 'speed'},
-      {t: 'Info and stats', a: navigateInfo, i: 'info'},
     ],
   },
-
   {
-    title: 'Convert trace',
-    summary: 'Convert to other formats',
+    title: 'Gecho Sample queries',
+    summary: 'Gecho Sample queries',
     expanded: true,
-    hideIfNoTraceLoaded: true,
     items: [
       {
-        t: 'Switch to legacy UI',
-        a: openCurrentTraceWithOldUI,
-        i: 'filter_none',
-        isPending: () => globals.getConversionJobStatus('open_in_legacy') ===
-            ConversionJobStatus.InProgress,
-      },
-      {
-        t: 'Convert to .json',
-        a: convertTraceToJson,
-        i: 'file_download',
-        isPending: () => globals.getConversionJobStatus('convert_json') ===
-            ConversionJobStatus.InProgress,
-        checkDownloadDisabled: true,
-      },
-
-      {
-        t: 'Convert to .systrace',
-        a: convertTraceToSystrace,
-        i: 'file_download',
-        isVisible: () => globals.hasFtrace,
-        isPending: () => globals.getConversionJobStatus('convert_systrace') ===
-            ConversionJobStatus.InProgress,
-        checkDownloadDisabled: true,
-      },
-
-    ],
-  },
-
-  {
-    title: 'Example Traces',
-    expanded: true,
-    summary: 'Open an example trace',
-    items: [
-      {
-        t: 'Open Android example',
-        a: openTraceUrl(EXAMPLE_ANDROID_TRACE_URL),
-        i: 'description',
-      },
-      {
-        t: 'Open Chrome example',
-        a: openTraceUrl(EXAMPLE_CHROME_TRACE_URL),
-        i: 'description',
-      },
-    ],
-  },
-
-  {
-    title: 'Support',
-    expanded: true,
-    summary: 'Documentation & Bugs',
-    items: [
-      {t: 'Keyboard shortcuts', a: openHelp, i: 'help'},
-      {t: 'Documentation', a: 'https://perfetto.dev', i: 'find_in_page'},
-      {t: 'Flags', a: navigateFlags, i: 'emoji_flags'},
-      {
-        t: 'Report a bug',
-        a: () => window.open(getBugReportUrl()),
-        i: 'bug_report',
-      },
-    ],
-  },
-
-  {
-    title: 'Sample queries',
-    summary: 'Compute summary statistics',
-    items: [
-      {
-        t: 'Show Debug Track',
-        a: showDebugTrack(),
-        i: 'view_day',
-        isVisible: () => globals.state.currentEngineId !== undefined,
-      },
-      {
-        t: 'Record metatrace',
-        a: recordMetatrace,
-        i: 'fiber_smart_record',
-        checkMetatracingDisabled: true,
-      },
-      {
-        t: 'Finalise metatrace',
-        a: finaliseMetatrace,
-        i: 'file_download',
-        checkMetatracingEnabled: true,
-      },
-      {
-        t: 'All Processes',
+        t: 'All Gecho traces',
         a: createCannedQuery(ALL_PROCESSES_QUERY),
         i: 'search',
       },
       {
-        t: 'CPU Time by process',
-        a: createCannedQuery(CPU_TIME_FOR_PROCESSES),
+        t: 'Show errors and warnings',
+        a: createCannedQuery(SHOW_WARNINGS),
         i: 'search',
       },
       {
-        t: 'Cycles by p-state by CPU',
-        a: createCannedQuery(CYCLES_PER_P_STATE_PER_CPU),
+        t: 'Show camera communication',
+        a: createCannedQuery(SHOW_CAMERA_COMMUNICATION),
         i: 'search',
-      },
-      {
-        t: 'CPU Time by CPU by process',
-        a: createCannedQuery(CPU_TIME_BY_CPU_BY_PROCESS),
-        i: 'search',
-      },
-      {
-        t: 'Heap Graph: Bytes per type',
-        a: createCannedQuery(HEAP_GRAPH_BYTES_PER_TYPE),
-        i: 'search',
-      },
-      {
-        t: 'Debug SQL performance',
-        a: createCannedQuery(SQL_STATS),
-        i: 'bug_report',
       },
     ],
   },

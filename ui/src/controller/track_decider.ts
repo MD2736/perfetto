@@ -173,7 +173,7 @@ class TrackDecider {
     } else if (hasUpid && hasPid) {
       return `Process ${pid}`;
     } else if (hasThreadName && hasTid) {
-      return `${threadName} ${tid}`;
+      return `${threadName} `;
     } else if (hasTid) {
       return `Thread ${tid}`;
     } else if (hasUpid) {
@@ -1551,7 +1551,7 @@ class TrackDecider {
         });
 
         const name = TrackDecider.getTrackName(
-            {utid, processName, pid, threadName, tid, upid});
+            {name:threadName, utid, processName, pid,threadName, tid, upid});
         const addTrackGroup = Actions.addTrackGroup({
           engineId: this.engineId,
           summaryTrackId,

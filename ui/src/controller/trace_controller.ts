@@ -410,9 +410,9 @@ export class TraceController extends Controller<States> {
       const query = `select str_value from metadata where name = 'trace_type'`;
       const result = await assertExists(this.engine).query(query);
       const traceType = result.firstRow({str_value: STR});
-      if (traceType.str_value == 'json') {
-        showJsonWarning();
-      }
+//      if (traceType.str_value == 'json') {
+//        showJsonWarning();
+//      }
     };
 
     const emptyOmniboxState = {
