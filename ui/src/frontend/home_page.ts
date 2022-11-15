@@ -14,7 +14,7 @@
 
 import * as m from 'mithril';
 
-import {channelChanged, getNextChannel, setChannel} from '../common/channels';
+//import {channelChanged, getNextChannel, setChannel} from '../common/channels';
 
 import {globals} from './globals';
 import {createPage} from './pages';
@@ -35,14 +35,14 @@ export const HomePage = createPage({
   },
 });
 
-function mkChan(chan: string) {
-  const checked = getNextChannel() === chan ? '[checked=true]' : '';
-  return [
-    m(`input[type=radio][name=chan][id=chan_${chan}]${checked}`, {
-      onchange: () => {
-        setChannel(chan);
-      },
-    }),
-    m(`label[for=chan_${chan}]`, chan),
-  ];
-}
+// function mkChan(chan: string) {
+//   const checked = getNextChannel() === chan ? '[checked=true]' : '';
+//   return [
+//     m(`input[type=radio][name=chan][id=chan_${chan}]${checked}`, {
+//       onchange: () => {
+//         setChannel(chan);
+//       },
+//     }),
+//     m(`label[for=chan_${chan}]`, chan),
+//   ];
+// }

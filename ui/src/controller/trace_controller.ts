@@ -35,7 +35,7 @@ import {
   QuantizedLoad,
   ThreadDesc,
 } from '../frontend/globals';
-import {showModal} from '../frontend/modal';
+//import {showModal} from '../frontend/modal';
 import {
   publishHasFtrace,
   publishMetricError,
@@ -147,22 +147,22 @@ const ENABLE_CHROME_RELIABLE_RANGE_ANNOTATION_FLAG = featureFlags.register({
   defaultValue: false,
 });
 
-function showJsonWarning() {
-  showModal({
-    title: 'Warning',
-    content:
-        m('div',
-          m('span',
-            'Perfetto UI features are limited for JSON traces. ',
-            'We recommend recording ',
-            m('a',
-              {href: 'https://perfetto.dev/docs/quickstart/chrome-tracing'},
-              'proto-format traces'),
-            ' from Chrome.'),
-          m('br')),
-    buttons: [],
-  });
-};
+// function showJsonWarning() {
+//   showModal({
+//     title: 'Warning',
+//     content:
+//         m('div',
+//           m('span',
+//             'Perfetto UI features are limited for JSON traces. ',
+//             'We recommend recording ',
+//             m('a',
+//               {href: 'https://perfetto.dev/docs/quickstart/chrome-tracing'},
+//               'proto-format traces'),
+//             ' from Chrome.'),
+//           m('br')),
+//     buttons: [],
+//   });
+// };
 
 // TraceController handles handshakes with the frontend for everything that
 // concerns a single trace. It owns the WASM trace processor engine, handles
@@ -407,9 +407,9 @@ export class TraceController extends Controller<States> {
 
     {
       // Show warning if the trace is in JSON format.
-      const query = `select str_value from metadata where name = 'trace_type'`;
-      const result = await assertExists(this.engine).query(query);
-      const traceType = result.firstRow({str_value: STR});
+//      const query = `select str_value from metadata where name = 'trace_type'`;
+//      const result = await assertExists(this.engine).query(query);
+//      const traceType = result.firstRow({str_value: STR});
 //      if (traceType.str_value == 'json') {
 //        showJsonWarning();
 //      }

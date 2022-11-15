@@ -19,11 +19,11 @@ import {Actions} from '../common/actions';
 import {getCurrentChannel} from '../common/channels';
 import {TRACE_SUFFIX} from '../common/constants';
 import {ConversionJobStatus} from '../common/conversion_jobs';
-import {Engine} from '../common/engine';
+//import {Engine} from '../common/engine';
 import {featureFlags} from '../common/feature_flags';
 import {
-  disableMetatracingAndGetTrace,
-  enableMetatracing,
+//  disableMetatracingAndGetTrace,
+//  enableMetatracing,
   isMetatracingEnabled,
 } from '../common/metatracing';
 import {EngineMode, TraceArrayBufferSource} from '../common/state';
@@ -32,7 +32,7 @@ import * as version from '../gen/perfetto_version';
 import {Animation} from './animation';
 import {onClickCopy} from './clipboard';
 import {globals} from './globals';
-import {toggleHelp} from './help_modal';
+//import {toggleHelp} from './help_modal';
 import {
   isLegacyTrace,
   openFileWithLegacyTraceViewer,
@@ -42,8 +42,8 @@ import {Router} from './router';
 import {isDownloadable, isShareable} from './trace_attrs';
 import {
   convertToJson,
-  convertTraceToJsonAndDownload,
-  convertTraceToSystraceAndDownload,
+ // convertTraceToJsonAndDownload,
+ // convertTraceToSystraceAndDownload,
 } from './trace_converter';
 
 const ALL_PROCESSES_QUERY = "select s.id,  s.ts, s.dur,s.cat, a.display_value,s.track_id from args a join slice s on s.arg_set_id=a.arg_set_id where a.key='args.Details' order by s.id ASC";
@@ -55,82 +55,82 @@ const SHOW_CAMERA_COMMUNICATION = "SELECT slice.ts, slice.dur, slice.track_id, s
 
 
 
-const CPU_TIME_FOR_PROCESSES = `
-select
-  process.name,
-  sum(dur)/1e9 as cpu_sec
-from sched
-join thread using(utid)
-join process using(upid)
-group by upid
-order by cpu_sec desc
-limit 100;`;
+// const CPU_TIME_FOR_PROCESSES = `
+// select
+//   process.name,
+//   sum(dur)/1e9 as cpu_sec
+// from sched
+// join thread using(utid)
+// join process using(upid)
+// group by upid
+// order by cpu_sec desc
+// limit 100;`;
 
-const CYCLES_PER_P_STATE_PER_CPU = `
-select
-  cpu,
-  freq,
-  dur,
-  sum(dur * freq)/1e6 as mcycles
-from (
-  select
-    cpu,
-    value as freq,
-    lead(ts) over (partition by cpu order by ts) - ts as dur
-  from counter
-  inner join cpu_counter_track on counter.track_id = cpu_counter_track.id
-  where name = 'cpufreq'
-) group by cpu, freq
-order by mcycles desc limit 32;`;
+// const CYCLES_PER_P_STATE_PER_CPU = `
+// select
+//   cpu,
+//   freq,
+//   dur,
+//   sum(dur * freq)/1e6 as mcycles
+// from (
+//   select
+//     cpu,
+//     value as freq,
+//     lead(ts) over (partition by cpu order by ts) - ts as dur
+//   from counter
+//   inner join cpu_counter_track on counter.track_id = cpu_counter_track.id
+//   where name = 'cpufreq'
+// ) group by cpu, freq
+// order by mcycles desc limit 32;`;
 
-const CPU_TIME_BY_CPU_BY_PROCESS = `
-select
-  process.name as process,
-  thread.name as thread,
-  cpu,
-  sum(dur) / 1e9 as cpu_sec
-from sched
-inner join thread using(utid)
-inner join process using(upid)
-group by utid, cpu
-order by cpu_sec desc
-limit 30;`;
+// const CPU_TIME_BY_CPU_BY_PROCESS = `
+// select
+//   process.name as process,
+//   thread.name as thread,
+//   cpu,
+//   sum(dur) / 1e9 as cpu_sec
+// from sched
+// inner join thread using(utid)
+// inner join process using(upid)
+// group by utid, cpu
+// order by cpu_sec desc
+// limit 30;`;
 
-const HEAP_GRAPH_BYTES_PER_TYPE = `
-select
-  o.upid,
-  o.graph_sample_ts,
-  c.name,
-  sum(o.self_size) as total_self_size
-from heap_graph_object o join heap_graph_class c on o.type_id = c.id
-group by
- o.upid,
- o.graph_sample_ts,
- c.name
-order by total_self_size desc
-limit 100;`;
+// const HEAP_GRAPH_BYTES_PER_TYPE = `
+// select
+//   o.upid,
+//   o.graph_sample_ts,
+//   c.name,
+//   sum(o.self_size) as total_self_size
+// from heap_graph_object o join heap_graph_class c on o.type_id = c.id
+// group by
+//  o.upid,
+//  o.graph_sample_ts,
+//  c.name
+// order by total_self_size desc
+// limit 100;`;
 
-const SQL_STATS = `
-with first as (select started as ts from sqlstats limit 1)
-select
-    round((max(ended - started, 0))/1e6) as runtime_ms,
-    round((started - first.ts)/1e6) as t_start_ms,
-    query
-from sqlstats, first
-order by started desc`;
+// const SQL_STATS = `
+// with first as (select started as ts from sqlstats limit 1)
+// select
+//     round((max(ended - started, 0))/1e6) as runtime_ms,
+//     round((started - first.ts)/1e6) as t_start_ms,
+//     query
+// from sqlstats, first
+// order by started desc`;
 
 const GITILES_URL =
     'https://android.googlesource.com/platform/external/perfetto';
 
 let lastTabTitle = '';
 
-function getBugReportUrl(): string {
-  if (globals.isInternalUser) {
-    return 'https://goto.google.com/perfetto-ui-bug';
-  } else {
-    return 'https://github.com/google/perfetto/issues/new';
-  }
-}
+// function getBugReportUrl(): string {
+//   if (globals.isInternalUser) {
+//     return 'https://goto.google.com/perfetto-ui-bug';
+//   } else {
+//     return 'https://github.com/google/perfetto/issues/new';
+//   }
+// }
 
 const HIRING_BANNER_FLAG = featureFlags.register({
   id: 'showHiringBanner',
@@ -153,23 +153,23 @@ function createCannedQuery(query: string): (_: Event) => void {
   };
 }
 
-function showDebugTrack(): (_: Event) => void {
-  return (e: Event) => {
-    e.preventDefault();
-    globals.dispatch(Actions.addDebugTrack({
-      // The debug track will only be shown once we have a currentEngineId which
-      // is not undefined.
-      engineId: assertExists(globals.state.currentEngineId),
-      name: 'Debug Slices',
-    }));
-  };
-}
+// function showDebugTrack(): (_: Event) => void {
+//   return (e: Event) => {
+//     e.preventDefault();
+//     globals.dispatch(Actions.addDebugTrack({
+//       // The debug track will only be shown once we have a currentEngineId which
+//       // is not undefined.
+//       engineId: assertExists(globals.state.currentEngineId),
+//       name: 'Debug Slices',
+//     }));
+//   };
+// }
 
-const EXAMPLE_ANDROID_TRACE_URL =
-    'https://storage.googleapis.com/perfetto-misc/example_android_trace_15s';
+// const EXAMPLE_ANDROID_TRACE_URL =
+//     'https://storage.googleapis.com/perfetto-misc/example_android_trace_15s';
 
-const EXAMPLE_CHROME_TRACE_URL =
-    'https://storage.googleapis.com/perfetto-misc/example_chrome_trace_4s_1.json';
+// const EXAMPLE_CHROME_TRACE_URL =
+//     'https://storage.googleapis.com/perfetto-misc/example_chrome_trace_4s_1.json';
 
 interface SectionItem {
   t: string;
@@ -253,10 +253,10 @@ const SECTIONS: Section[] = [
 
 ];
 
-function openHelp(e: Event) {
-  e.preventDefault();
-  toggleHelp();
-}
+// function openHelp(e: Event) {
+//   e.preventDefault();
+//   toggleHelp();
+// }
 
 function getFileElement(): HTMLInputElement {
   return assertExists(
@@ -269,11 +269,11 @@ function popupFileSelectionDialog(e: Event) {
   getFileElement().click();
 }
 
-function popupFileSelectionDialogOldUI(e: Event) {
-  e.preventDefault();
-  getFileElement().dataset['useCatapultLegacyUi'] = '1';
-  getFileElement().click();
-}
+// function popupFileSelectionDialogOldUI(e: Event) {
+//   e.preventDefault();
+//   getFileElement().dataset['useCatapultLegacyUi'] = '1';
+//   getFileElement().click();
+// }
 
 function downloadTraceFromUrl(url: string): Promise<File> {
   return m.request({
@@ -312,59 +312,59 @@ export async function getCurrentTrace(): Promise<Blob> {
   }
 }
 
-function openCurrentTraceWithOldUI(e: Event) {
-  e.preventDefault();
-  assertTrue(isTraceLoaded());
-  globals.logging.logEvent('Trace Actions', 'Open current trace in legacy UI');
-  if (!isTraceLoaded) return;
-  getCurrentTrace()
-      .then((file) => {
-        openInOldUIWithSizeCheck(file);
-      })
-      .catch((error) => {
-        throw new Error(`Failed to get current trace ${error}`);
-      });
-}
+// function openCurrentTraceWithOldUI(e: Event) {
+//   e.preventDefault();
+//   assertTrue(isTraceLoaded());
+//   globals.logging.logEvent('Trace Actions', 'Open current trace in legacy UI');
+//   if (!isTraceLoaded) return;
+//   getCurrentTrace()
+//       .then((file) => {
+//         openInOldUIWithSizeCheck(file);
+//       })
+//       .catch((error) => {
+//         throw new Error(`Failed to get current trace ${error}`);
+//       });
+// }
 
-function convertTraceToSystrace(e: Event) {
-  e.preventDefault();
-  assertTrue(isTraceLoaded());
-  globals.logging.logEvent('Trace Actions', 'Convert to .systrace');
-  if (!isTraceLoaded) return;
-  getCurrentTrace()
-      .then((file) => {
-        convertTraceToSystraceAndDownload(file);
-      })
-      .catch((error) => {
-        throw new Error(`Failed to get current trace ${error}`);
-      });
-}
+// function convertTraceToSystrace(e: Event) {
+//   e.preventDefault();
+//   assertTrue(isTraceLoaded());
+//   globals.logging.logEvent('Trace Actions', 'Convert to .systrace');
+//   if (!isTraceLoaded) return;
+//   getCurrentTrace()
+//       .then((file) => {
+//         convertTraceToSystraceAndDownload(file);
+//       })
+//       .catch((error) => {
+//         throw new Error(`Failed to get current trace ${error}`);
+//       });
+// }
 
-function convertTraceToJson(e: Event) {
-  e.preventDefault();
-  assertTrue(isTraceLoaded());
-  globals.logging.logEvent('Trace Actions', 'Convert to .json');
-  if (!isTraceLoaded) return;
-  getCurrentTrace()
-      .then((file) => {
-        convertTraceToJsonAndDownload(file);
-      })
-      .catch((error) => {
-        throw new Error(`Failed to get current trace ${error}`);
-      });
-}
+// function convertTraceToJson(e: Event) {
+//   e.preventDefault();
+//   assertTrue(isTraceLoaded());
+//   globals.logging.logEvent('Trace Actions', 'Convert to .json');
+//   if (!isTraceLoaded) return;
+//   getCurrentTrace()
+//       .then((file) => {
+//         convertTraceToJsonAndDownload(file);
+//       })
+//       .catch((error) => {
+//         throw new Error(`Failed to get current trace ${error}`);
+//       });
+// }
 
 export function isTraceLoaded(): boolean {
   return globals.getCurrentEngine() !== undefined;
 }
 
-function openTraceUrl(url: string): (e: Event) => void {
-  return (e) => {
-    globals.logging.logEvent('Trace Actions', 'Open example trace');
-    e.preventDefault();
-    globals.dispatch(Actions.openTraceFromUrl({url}));
-  };
-}
+//function openTraceUrl(url: string): (e: Event) => void {
+//   return (e) => {
+//     globals.logging.logEvent('Trace Actions', 'Open example trace');
+//     e.preventDefault();
+//     globals.dispatch(Actions.openTraceFromUrl({url}));
+//   };
+// }
 
 function onInputElementFileSelectionChanged(e: Event) {
   if (!(e.target instanceof HTMLInputElement)) {
@@ -438,30 +438,30 @@ function openInOldUIWithSizeCheck(trace: Blob) {
   return;
 }
 
-function navigateRecord(e: Event) {
-  e.preventDefault();
-  Router.navigate('#!/record');
-}
+// function navigateRecord(e: Event) {
+//   e.preventDefault();
+//   Router.navigate('#!/record');
+// }
 
 function navigateAnalyze(e: Event) {
   e.preventDefault();
   Router.navigate('#!/query');
 }
 
-function navigateFlags(e: Event) {
-  e.preventDefault();
-  Router.navigate('#!/flags');
-}
+// function navigateFlags(e: Event) {
+//   e.preventDefault();
+//   Router.navigate('#!/flags');
+// }
 
-function navigateMetrics(e: Event) {
-  e.preventDefault();
-  Router.navigate('#!/metrics');
-}
+// function navigateMetrics(e: Event) {
+//   e.preventDefault();
+//   Router.navigate('#!/metrics');
+// }
 
-function navigateInfo(e: Event) {
-  e.preventDefault();
-  Router.navigate('#!/info');
-}
+// function navigateInfo(e: Event) {
+//   e.preventDefault();
+//   Router.navigate('#!/info');
+// }
 
 function navigateViewer(e: Event) {
   e.preventDefault();
@@ -548,11 +548,11 @@ function downloadTrace(e: Event) {
   downloadUrl(url, fileName);
 }
 
-function getCurrentEngine(): Engine|undefined {
-  const engineId = globals.getCurrentEngine()?.id;
-  if (engineId === undefined) return undefined;
-  return globals.engines.get(engineId);
-}
+// function getCurrentEngine(): Engine|undefined {
+//   const engineId = globals.getCurrentEngine()?.id;
+//   if (engineId === undefined) return undefined;
+//   return globals.engines.get(engineId);
+// }
 
 function highPrecisionTimersAvailable(): boolean {
   // High precision timers are available either when the page is cross-origin
@@ -561,68 +561,68 @@ function highPrecisionTimersAvailable(): boolean {
       globals.getCurrentEngine()?.mode === 'HTTP_RPC';
 }
 
-function recordMetatrace(e: Event) {
-  e.preventDefault();
-  globals.logging.logEvent('Trace Actions', 'Record metatrace');
+// function recordMetatrace(e: Event) {
+//   e.preventDefault();
+//   globals.logging.logEvent('Trace Actions', 'Record metatrace');
 
-  const engine = getCurrentEngine();
-  if (!engine) return;
+//   const engine = getCurrentEngine();
+//   if (!engine) return;
 
-  if (!highPrecisionTimersAvailable()) {
-    const PROMPT =
-        `High-precision timers are not available to WASM trace processor yet.
+//   if (!highPrecisionTimersAvailable()) {
+//     const PROMPT =
+//         `High-precision timers are not available to WASM trace processor yet.
 
-Modern browsers restrict high-precision timers to cross-origin-isolated pages.
-As Perfetto UI needs to open traces via postMessage, it can't be cross-origin
-isolated until browsers ship support for
-'Cross-origin-opener-policy: restrict-properties'.
+// Modern browsers restrict high-precision timers to cross-origin-isolated pages.
+// As Perfetto UI needs to open traces via postMessage, it can't be cross-origin
+// isolated until browsers ship support for
+// 'Cross-origin-opener-policy: restrict-properties'.
 
-Do you still want to record a metatrace?
-Note that events under timer precision (1ms) will dropped.
-Alternatively, connect to a trace_processor_shell --httpd instance.
-`;
-    showModal({
-      title: `Trace processor doesn't have high-precision timers`,
-      content: m('.modal-pre', PROMPT),
-      buttons: [
-        {
-          text: 'YES, record metatrace',
-          primary: true,
-          action: () => {
-            enableMetatracing();
-            engine.enableMetatrace();
-          },
-        },
-        {
-          text: 'NO, cancel',
-        },
-      ],
-    });
-  } else {
-    engine.enableMetatrace();
-  }
-}
+// Do you still want to record a metatrace?
+// Note that events under timer precision (1ms) will dropped.
+// Alternatively, connect to a trace_processor_shell --httpd instance.
+// `;
+//     showModal({
+//       title: `Trace processor doesn't have high-precision timers`,
+//       content: m('.modal-pre', PROMPT),
+//       buttons: [
+//         {
+//           text: 'YES, record metatrace',
+//           primary: true,
+//           action: () => {
+//             enableMetatracing();
+//             engine.enableMetatrace();
+//           },
+//         },
+//         {
+//           text: 'NO, cancel',
+//         },
+//       ],
+//     });
+//   } else {
+//     engine.enableMetatrace();
+//   }
+// }
 
-async function finaliseMetatrace(e: Event) {
-  e.preventDefault();
-  globals.logging.logEvent('Trace Actions', 'Finalise metatrace');
+// async function finaliseMetatrace(e: Event) {
+//   e.preventDefault();
+//   globals.logging.logEvent('Trace Actions', 'Finalise metatrace');
 
-  const jsEvents = disableMetatracingAndGetTrace();
+//   const jsEvents = disableMetatracingAndGetTrace();
 
-  const engine = getCurrentEngine();
-  if (!engine) return;
+//   const engine = getCurrentEngine();
+//   if (!engine) return;
 
-  const result = await engine.stopAndGetMetatrace();
-  if (result.error.length !== 0) {
-    throw new Error(`Failed to read metatrace: ${result.error}`);
-  }
+//   const result = await engine.stopAndGetMetatrace();
+//   if (result.error.length !== 0) {
+//     throw new Error(`Failed to read metatrace: ${result.error}`);
+//   }
 
-  const blob = new Blob(
-      [result.metatrace, jsEvents], {type: 'application/octet-stream'});
-  const url = URL.createObjectURL(blob);
+//   const blob = new Blob(
+//       [result.metatrace, jsEvents], {type: 'application/octet-stream'});
+//   const url = URL.createObjectURL(blob);
 
-  downloadUrl(url, 'metatrace');
-}
+//   downloadUrl(url, 'metatrace');
+// }
 
 
 const EngineRPCWidget: m.Component = {
