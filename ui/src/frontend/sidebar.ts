@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//import { readFileSync } from 'fs';
+//import { FILE } from 'dns';
 import * as m from 'mithril';
+
 
 import {assertExists, assertTrue} from '../base/logging';
 import {Actions} from '../common/actions';
@@ -20,7 +23,7 @@ import {getCurrentChannel} from '../common/channels';
 import {TRACE_SUFFIX} from '../common/constants';
 import {ConversionJobStatus} from '../common/conversion_jobs';
 //import {Engine} from '../common/engine';
-import {featureFlags} from '../common/feature_flags';
+//import {featureFlags} from '../common/feature_flags';
 import {
 //  disableMetatracingAndGetTrace,
 //  enableMetatracing,
@@ -45,6 +48,8 @@ import {
  // convertTraceToJsonAndDownload,
  // convertTraceToSystraceAndDownload,
 } from './trace_converter';
+
+
 
 const ALL_PROCESSES_QUERY = "select s.id,  s.ts, s.dur,s.cat, a.display_value,s.track_id from args a join slice s on s.arg_set_id=a.arg_set_id where a.key='args.Details' order by s.id ASC";
 const SHOW_WARNINGS = "SELECT slice.ts, slice.dur, slice.track_id, slice.name, args.display_value FROM slice JOIN thread_track   ON slice.track_id = thread_track.id JOIN thread   ON thread_track.utid = thread.utid JOIN args   ON slice.arg_set_id=args.arg_set_id Where thread.name = '_ERROR/WARNING' and args.key='args.Details' ";
@@ -119,8 +124,8 @@ const SHOW_CAMERA_COMMUNICATION = "SELECT slice.ts, slice.dur, slice.track_id, s
 // from sqlstats, first
 // order by started desc`;
 
-const GITILES_URL =
-    'https://android.googlesource.com/platform/external/perfetto';
+//const GITILES_URL =
+ //   'https://android.googlesource.com/platform/external/perfetto';
 
 let lastTabTitle = '';
 
@@ -132,16 +137,16 @@ let lastTabTitle = '';
 //   }
 // }
 
-const HIRING_BANNER_FLAG = featureFlags.register({
-  id: 'showHiringBanner',
-  name: 'Show hiring banner',
-  description: 'Show the "We\'re hiring" banner link in the side bar.',
-  defaultValue: false,
-});
+// const HIRING_BANNER_FLAG = featureFlags.register({
+//   id: 'showHiringBanner',
+//   name: 'Show hiring banner',
+//   description: 'Show the "We\'re hiring" banner link in the side bar.',
+//   defaultValue: false,
+// });
 
-function shouldShowHiringBanner(): boolean {
-  return globals.isInternalUser && HIRING_BANNER_FLAG.get();
-}
+// function shouldShowHiringBanner(): boolean {
+//   return globals.isInternalUser && HIRING_BANNER_FLAG.get();
+// }
 
 function createCannedQuery(query: string): (_: Event) => void {
   return (e: Event) => {
@@ -165,8 +170,10 @@ function createCannedQuery(query: string): (_: Event) => void {
 //   };
 // }
 
-// const EXAMPLE_ANDROID_TRACE_URL =
-//     'https://storage.googleapis.com/perfetto-misc/example_android_trace_15s';
+
+const EXAMPLE_OVERTRIG = `${globals.root}assets/rapixocxp_hw_trig_missed.json`;
+const EXAMPLE_CAMERA_DISCONNECT = `${globals.root}assets/rapixocxp_camera_disconnect.json`;
+const EXAMPLE_FRAME_MISSED = `${globals.root}assets/rapixocxp_frame_missed_soft_latency.json`;
 
 // const EXAMPLE_CHROME_TRACE_URL =
 //     'https://storage.googleapis.com/perfetto-misc/example_chrome_trace_4s_1.json';
@@ -226,6 +233,28 @@ const SECTIONS: Section[] = [
         checkDownloadDisabled: true,
       },
       {t: 'Query (SQL)', a: navigateAnalyze, i: 'control_camera'},
+    ],
+  },
+  {
+    title: 'Example Traces',
+    expanded: true,
+    summary: 'Open an example trace',
+    items: [
+      {
+        t: 'Frames missed hardware overtrig',
+        a: openTraceUrl(EXAMPLE_OVERTRIG),
+        i: 'Frame missed because hardware trigger rate too fast.',
+      },
+      {
+        t: 'Camera disconnected',
+        a: openTraceUrl(EXAMPLE_CAMERA_DISCONNECT),
+        i: 'Camera has been physically disconnected.',
+      },
+      {
+        t: 'Frames missed by software software latency',
+        a: openTraceUrl(EXAMPLE_FRAME_MISSED),
+        i: 'Frame missed caused by software processing function that is longer than buffering.',
+      },
     ],
   },
   {
@@ -358,13 +387,15 @@ export function isTraceLoaded(): boolean {
   return globals.getCurrentEngine() !== undefined;
 }
 
-//function openTraceUrl(url: string): (e: Event) => void {
-//   return (e) => {
-//     globals.logging.logEvent('Trace Actions', 'Open example trace');
-//     e.preventDefault();
-//     globals.dispatch(Actions.openTraceFromUrl({url}));
-//   };
-// }
+function openTraceUrl(url: string): (e: Event) => void {
+  return (e) => {
+    globals.logging.logEvent('Trace Actions', 'Open example trace');
+    e.preventDefault();
+    globals.dispatch(Actions.openTraceFromUrl({url}));
+  };
+}
+
+
 
 function onInputElementFileSelectionChanged(e: Event) {
   if (!(e.target instanceof HTMLInputElement)) {
@@ -758,29 +789,29 @@ const SidebarFooter: m.Component = {
         m(
             '.version',
             m('a',
-              {
-                href: `${GITILES_URL}/+/${version.SCM_REVISION}/ui`,
-                title: `Channel: ${getCurrentChannel()}`,
-                target: '_blank',
-              },
+              // {
+              //   href: `${GITILES_URL}/+/${version.SCM_REVISION}/ui`,
+              //   title: `Channel: ${getCurrentChannel()}`,
+              //   target: '_blank',
+              // },
               `${version.VERSION.substr(0, 11)}`),
             ),
     );
   },
 };
 
-class HiringBanner implements m.ClassComponent {
-  view() {
-    return m(
-        '.hiring-banner',
-        m('a',
-          {
-            href: 'http://go/perfetto-open-roles',
-            target: '_blank',
-          },
-          'We\'re hiring!'));
-  }
-}
+// class HiringBanner implements m.ClassComponent {
+//   view() {
+//     return m(
+//         '.hiring-banner',
+//         m('a',
+//           {
+//             href: 'http://go/perfetto-open-roles',
+//             target: '_blank',
+//           },
+//           'We\'re hiring!'));
+//   }
+// }
 
 export class Sidebar implements m.ClassComponent {
   private _redrawWhileAnimating =
@@ -895,7 +926,7 @@ export class Sidebar implements m.ClassComponent {
           ontransitionstart: () => this._redrawWhileAnimating.start(150),
           ontransitionend: () => this._redrawWhileAnimating.stop(),
         },
-        shouldShowHiringBanner() ? m(HiringBanner) : null,
+      //  shouldShowHiringBanner() ? m(HiringBanner) : null,
         m(
             `header.${getCurrentChannel()}`,
             m(`img[src=${globals.root}assets/brand.png].brand`),

@@ -103,7 +103,7 @@ export class TraceHttpStream implements TraceStream {
   private httpStream?: ReadableStreamReader<Uint8Array>;
 
   constructor(uri: string) {
-    assertTrue(uri.startsWith('http://') || uri.startsWith('https://'));
+    assertTrue(uri.startsWith('http://') || uri.startsWith('https://') || uri.startsWith('file:'));
     this.uri = uri;
   }
 

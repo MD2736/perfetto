@@ -113,6 +113,7 @@ const cfg = {
 const RULES = [
   {r: /ui\/src\/assets\/index.html/, f: copyIndexHtml},
   {r: /ui\/src\/assets\/((.*)[.]png)/, f: copyAssets},
+  {r: /ui\/src\/assets\/((.*)[.]json)/, f: copyAssets},
   {r: /buildtools\/typefaces\/(.+[.]woff2)/, f: copyAssets},
   {r: /buildtools\/catapult_trace_viewer\/(.+(js|html))/, f: copyAssets},
   {r: /ui\/src\/assets\/.+[.]scss/, f: compileScss},
@@ -239,10 +240,13 @@ async function main() {
     generateImports('ui/src/tracks', 'all_tracks.ts');
     compileProtos();
     genVersion();
-    transpileTsProject('ui');
     transpileTsProject('ui/src/service_worker');
-    bundleJs('rollup.config.js');
+    transpileTsProject('ui');
+    console.log('!!!!!!!!!!!service_workder');
     genServiceWorkerManifestJson();
+   // bundleJs('rollup-serviceworker.config');
+    bundleJs('rollup.config.js');
+
 
     // Watches the /dist. When changed:
     // - Notifies the HTTP live reload clients.
@@ -483,6 +487,7 @@ function genServiceWorkerManifestJson() {
     }, skipRegex);
     const manifestJson = JSON.stringify(manifest, null, 2);
     fs.writeFileSync(pjoin(cfg.outDistDir, 'manifest.json'), manifestJson);
+    console.log('!!!!!!!!!!!genServiceWorkerManifestJson');
   }
   addTask(makeManifest, []);
 }

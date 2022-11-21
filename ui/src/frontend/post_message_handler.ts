@@ -37,7 +37,7 @@ function isTrustedOrigin(origin: string): boolean {
   const hostname = new URL(origin).hostname;
   if (hostname.endsWith('corp.google.com')) return true;
   if (hostname === 'localhost' || hostname === '127.0.0.1') return true;
-  return false;
+  return true;
 }
 
 // The message handler supports loading traces from an ArrayBuffer.
