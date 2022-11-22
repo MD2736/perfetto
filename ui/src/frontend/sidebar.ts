@@ -241,7 +241,7 @@ const SECTIONS: Section[] = [
     summary: 'Open an example trace',
     items: [
       {
-        t: 'Frames missed hardware overtrig',
+        t: 'Frames missed caused by hardware overtrig.',
         a: openTraceUrl(EXAMPLE_OVERTRIG),
         i: 'Frame missed because hardware trigger rate too fast.',
       },
@@ -251,7 +251,7 @@ const SECTIONS: Section[] = [
         i: 'Camera has been physically disconnected.',
       },
       {
-        t: 'Frames missed by software software latency',
+        t: 'Frames missed caused by software latency',
         a: openTraceUrl(EXAMPLE_FRAME_MISSED),
         i: 'Frame missed caused by software processing function that is longer than buffering.',
       },
