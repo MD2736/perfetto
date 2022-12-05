@@ -312,9 +312,9 @@ class CpuSliceTrack extends Track<Config, Data> {
             procName = procName.substring(procName.lastIndexOf('/') + 1);
           }
           title = `${procName} [${threadInfo.pid}]`;
-          subTitle = `${threadInfo.threadName} `;
+          subTitle = `${threadInfo.threadName} [${threadInfo.tid}]`;
         } else {
-          title = `${threadInfo.threadName} `;
+          title = `${threadInfo.threadName} [${threadInfo.tid}]`;
         }
       }
       title = cropText(title, charWidth, rectWidth);

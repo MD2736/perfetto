@@ -108,6 +108,8 @@ export async function cacheTrace(
   let localOnly = false;
   switch (traceSource.type) {
     case 'ARRAY_BUFFER':
+      if (traceSource.url === undefined)
+        return false;
       trace = traceSource.buffer;
       title = traceSource.title;
       fileName = traceSource.fileName || '';

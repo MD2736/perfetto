@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//import { readFileSync } from 'fs';
 //import { FILE } from 'dns';
 import * as m from 'mithril';
 
@@ -49,14 +48,16 @@ import {
  // convertTraceToSystraceAndDownload,
 } from './trace_converter';
 
+//import { each } from 'immer/dist/internal';
+
 
 
 const ALL_PROCESSES_QUERY = "select s.id,  s.ts, s.dur,s.cat, a.display_value,s.track_id from args a join slice s on s.arg_set_id=a.arg_set_id where a.key='args.Details' order by s.id ASC";
-const SHOW_WARNINGS = "SELECT slice.ts, slice.dur, slice.track_id, slice.name, args.display_value FROM slice JOIN thread_track   ON slice.track_id = thread_track.id JOIN thread   ON thread_track.utid = thread.utid JOIN args   ON slice.arg_set_id=args.arg_set_id Where thread.name = '_ERROR/WARNING' and args.key='args.Details' ";
-
+const SHOW_WARNINGS = "SELECT slice.ts, slice.dur, slice.track_id, slice.name, args.display_value FROM slice JOIN thread_track   ON slice.track_id = thread_track.id JOIN thread   ON thread_track.utid = thread.utid JOIN args   ON slice.arg_set_id=args.arg_set_id Where thread.name = 'ERROR/WARNING' and args.key='args.Details' ";
 const SHOW_CAMERA_COMMUNICATION = "SELECT slice.ts, slice.dur, slice.track_id, slice.name, args.display_value FROM slice JOIN thread_track   ON slice.track_id = thread_track.id JOIN thread   ON thread_track.utid = thread.utid JOIN args   ON slice.arg_set_id=args.arg_set_id Where thread.name LIKE '%Camera%' and slice.Name not like '%(Queued)%'   and args.key='args.Details'  ";
 
-
+const SHOW_DIG_CONTROL_INQUIRE = "SELECT slice.ts, slice.dur, slice.track_id, slice.name, args.display_value FROM slice JOIN thread_track   ON slice.track_id = thread_track.id JOIN thread   ON thread_track.utid = thread.utid JOIN args   ON slice.arg_set_id=args.arg_set_id Where thread.name LIKE '%DigInquire%' and slice.Name not like '%(Queued)%'   and args.key='args.Details'  ";
+const SHOW_DIG_CONTROL = "SELECT slice.ts, slice.dur, slice.track_id, slice.name, args.display_value FROM slice JOIN thread_track   ON slice.track_id = thread_track.id JOIN thread   ON thread_track.utid = thread.utid JOIN args   ON slice.arg_set_id=args.arg_set_id Where thread.name LIKE '%DigInquire%' and slice.Name not like '%(Queued)%'   and args.key='args.Details' and slice.name LIKE '%DigControl%'";
 
 
 
@@ -236,6 +237,38 @@ const SECTIONS: Section[] = [
     ],
   },
   {
+    title: 'Gecho queries',
+    summary: 'Gecho queries',
+    expanded: true,
+    items: [
+      {
+        t: 'Errors and warnings',
+        a: createCannedQuery(SHOW_WARNINGS),
+        i: 'search',
+      },
+      {
+        t: 'All Gecho traces',
+        a: createCannedQuery(ALL_PROCESSES_QUERY),
+        i: 'search',
+      },
+      {
+        t: 'Camera communication',
+        a: createCannedQuery(SHOW_CAMERA_COMMUNICATION),
+        i: 'search',
+      },
+      {
+        t: 'MdigControl MdigInquire',
+        a: createCannedQuery(SHOW_DIG_CONTROL_INQUIRE),
+        i: 'search',
+      },
+      {
+        t: 'MdigControl',
+        a: createCannedQuery(SHOW_DIG_CONTROL),
+        i: 'search',
+      },
+    ],
+  },
+  {
     title: 'Example Traces',
     expanded: true,
     summary: 'Open an example trace',
@@ -254,28 +287,6 @@ const SECTIONS: Section[] = [
         t: 'Frames missed caused by software latency',
         a: openTraceUrl(EXAMPLE_FRAME_MISSED),
         i: 'Frame missed caused by software processing function that is longer than buffering.',
-      },
-    ],
-  },
-  {
-    title: 'Gecho Sample queries',
-    summary: 'Gecho Sample queries',
-    expanded: true,
-    items: [
-      {
-        t: 'All Gecho traces',
-        a: createCannedQuery(ALL_PROCESSES_QUERY),
-        i: 'search',
-      },
-      {
-        t: 'Show errors and warnings',
-        a: createCannedQuery(SHOW_WARNINGS),
-        i: 'search',
-      },
-      {
-        t: 'Show camera communication',
-        a: createCannedQuery(SHOW_CAMERA_COMMUNICATION),
-        i: 'search',
       },
     ],
   },

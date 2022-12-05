@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//import { url } from 'inspector';
 import * as m from 'mithril';
 
 import {Actions, PostedTrace} from '../common/actions';
@@ -77,7 +78,9 @@ export function postMessageHandler(messageEvent: MessageEvent) {
   if (!('data' in messageEvent)) {
     throw new Error('Incoming message has no data property');
   }
-
+  if (messageEvent.data === 'PONG') {
+    return;
+  }
   if (messageEvent.data === 'PING') {
     // Cross-origin messaging means we can't read |messageEvent.source|, but
     // it still needs to be of the correct type to be able to invoke the
@@ -89,14 +92,21 @@ export function postMessageHandler(messageEvent: MessageEvent) {
 
   let postedTrace: PostedTrace;
   let keepApiOpen = false;
-  if (isPostedTraceWrapped(messageEvent.data)) {
+
+  if (messageEvent.data.perfetto.filename != undefined) {
+    const url = String(messageEvent.data.perfetto.filename);
+    globals.dispatch(Actions.openTraceFromUrl({url}));
+    return;
+    }
+  else if (isPostedTraceWrapped(messageEvent.data)) {
     postedTrace = sanitizePostedTrace(messageEvent.data.perfetto);
     if (postedTrace.keepApiOpen) {
       keepApiOpen = true;
     }
   } else if (messageEvent.data instanceof ArrayBuffer) {
     postedTrace = {title: 'External trace', buffer: messageEvent.data};
-  } else {
+  }
+   else {
     console.warn(
         'Unknown postMessage() event received. If you are trying to open a ' +
         'trace via postMessage(), this is a bug in your code. If not, this ' +

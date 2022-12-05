@@ -393,7 +393,13 @@ export class TraceController extends Controller<States> {
     }
 
     // traceUuid will be '' if the trace is not cacheable (URL or RPC).
-    const traceUuid = await this.cacheCurrentTrace();
+    var traceUuid = '';
+    if (typeof navigator === 'object' && typeof navigator.userAgent === 'string' && navigator.userAgent.indexOf('Electron') >= 0) {
+      ; // do not use cache when using Electron
+    }
+    else {
+      traceUuid = await this.cacheCurrentTrace();
+    }
 
     const traceTime = await this.engine.getTraceTimeBounds();
     let startSec = traceTime.start;

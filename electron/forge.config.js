@@ -1,22 +1,19 @@
 module.exports = {
-  packagerConfig: {},
+  packagerConfig: {
+  icon: 'logo-128'
+  },
   rebuildConfig: {},
   makers: [
     {
-      name: '@electron-forge/maker-squirrel',
-      config: {
-        name: "perfetto",
-        authors: "zebra",
-        description: "Google Perfetto"
-      },
-    },
-    {
       name: '@electron-forge/maker-zip',
-      platforms: ['darwin'],
+      platforms: ['win32', 'linux'],
     },
     {
       name: '@electron-forge/maker-deb',
-      config: {},
+      config: {
+        maintainer: 'Zebra',
+        icon: 'logo-128.png'
+        },
     },
     {
       name: '@electron-forge/maker-rpm',
