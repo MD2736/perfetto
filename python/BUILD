@@ -23,7 +23,7 @@ load(
 
 licenses(["notice"])
 
-package(default_visibility = ["//visibility:private"])
+package(default_visibility = [PERFETTO_CONFIG.root + ":__subpackages__"])
 
 # GN target: //python:batch_trace_processor
 perfetto_py_library(
@@ -54,6 +54,14 @@ perfetto_py_binary(
     ] + PERFETTO_CONFIG.deps.pandas_py,
     main = "tools/slice_breakdown.py",
     python_version = "PY3",
+)
+
+# GN target: //python:trace_processor_table_generator
+perfetto_py_library(
+    name = "trace_processor_table_generator",
+    srcs = [
+        "generators/trace_processor_table/public.py",
+    ],
 )
 
 # GN target: //python:trace_processor_py_example

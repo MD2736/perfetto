@@ -19,9 +19,9 @@
 #include "perfetto/base/logging.h"
 #include "perfetto/ext/base/uuid.h"
 #include "src/trace_processor/forwarding_trace_parser.h"
-#include "src/trace_processor/importers/chrome_track_event.descriptor.h"
 #include "src/trace_processor/importers/common/args_tracker.h"
 #include "src/trace_processor/importers/common/args_translation_table.h"
+#include "src/trace_processor/importers/common/async_track_set_tracker.h"
 #include "src/trace_processor/importers/common/clock_tracker.h"
 #include "src/trace_processor/importers/common/event_tracker.h"
 #include "src/trace_processor/importers/common/flow_tracker.h"
@@ -29,15 +29,15 @@
 #include "src/trace_processor/importers/common/slice_tracker.h"
 #include "src/trace_processor/importers/common/slice_translation_table.h"
 #include "src/trace_processor/importers/common/track_tracker.h"
-#include "src/trace_processor/importers/default_modules.h"
-#include "src/trace_processor/importers/proto/async_track_set_tracker.h"
+#include "src/trace_processor/importers/proto/chrome_track_event.descriptor.h"
+#include "src/trace_processor/importers/proto/default_modules.h"
 #include "src/trace_processor/importers/proto/heap_profile_tracker.h"
 #include "src/trace_processor/importers/proto/metadata_tracker.h"
 #include "src/trace_processor/importers/proto/perf_sample_tracker.h"
 #include "src/trace_processor/importers/proto/proto_importer_module.h"
 #include "src/trace_processor/importers/proto/proto_trace_reader.h"
 #include "src/trace_processor/importers/proto/stack_profile_tracker.h"
-#include "src/trace_processor/importers/track_event.descriptor.h"
+#include "src/trace_processor/importers/proto/track_event.descriptor.h"
 #include "src/trace_processor/sorter/trace_sorter.h"
 #include "src/trace_processor/util/descriptors.h"
 
@@ -102,8 +102,7 @@ util::Status TraceProcessorStorageImpl::Parse(TraceBlobView blob) {
       stats::parse_trace_duration_ns);
 
   if (hash_input_size_remaining_ > 0 && !context_.uuid_found_in_trace) {
-    const size_t hash_size =
-        std::min(hash_input_size_remaining_, static_cast<size_t>(blob.size()));
+    const size_t hash_size = std::min(hash_input_size_remaining_, blob.size());
     hash_input_size_remaining_ -= hash_size;
 
     trace_hash_.Update(reinterpret_cast<const char*>(blob.data()), hash_size);

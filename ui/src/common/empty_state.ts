@@ -59,12 +59,12 @@ export function createEmptyNonSerializableState(): NonSerializableState {
   return {
     pivotTableRedux: {
       queryResult: null,
-      selectedSlicePivots: [{kind: 'regular', table: 'slice', column: 'name'}],
-      selectedPivots: [],
+      selectedPivots: [{kind: 'regular', table: 'slice', column: 'name'}],
       selectedAggregations: [
         {
           aggregationFunction: 'SUM',
           column: {kind: 'regular', table: 'slice', column: 'dur'},
+          sortDirection: 'DESC',
         },
         {
           aggregationFunction: 'SUM',
@@ -75,10 +75,6 @@ export function createEmptyNonSerializableState(): NonSerializableState {
       constrainToArea: true,
       queryRequested: false,
       argumentNames: [],
-      sortCriteria: {
-        column: {kind: 'regular', table: 'slice', column: 'dur'},
-        order: 'DESC',
-      },
     },
   };
 }
@@ -160,6 +156,7 @@ export function createEmptyState(): State {
       minimumLevel: 2,
       tags: [],
       textEntry: '',
+      hideNonMatching: true,
     },
   };
 }

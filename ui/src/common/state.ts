@@ -97,7 +97,8 @@ export const MAX_TIME = 180;
 // 25: Move omnibox state off VisibleState.
 // 26: Add tags for filtering Android log entries.
 // 27. Add a text entry for filtering Android log entries.
-export const STATE_VERSION = 27;
+// 28. Add a boolean indicating if non matching log entries are hidden.
+export const STATE_VERSION = 28;
 
 export const SCROLLING_TRACK_GROUP = 'ScrollingTracks';
 
@@ -444,14 +445,8 @@ export interface PivotTableReduxState {
   // located in separate arrays.
   selectedPivots: RegularColumn[];
 
-  // Selected pivots for slice table.
-  selectedSlicePivots: TableColumn[];
-
   // Selected aggregation columns. Stored same way as pivots.
   selectedAggregations: Aggregation[];
-
-  // Present if the result should be sorted, and in which direction.
-  sortCriteria?: {column: TableColumn, order: SortDirection};
 
   // Whether the pivot table results should be constrained to the selected area.
   constrainToArea: boolean;
@@ -488,6 +483,7 @@ export interface LogFilteringCriteria {
   minimumLevel: number;
   tags: string[];
   textEntry: string;
+  hideNonMatching: boolean;
 }
 
 export interface State {
@@ -649,7 +645,7 @@ export function getDefaultRecordingTargets(): RecordingTarget[] {
 }
 
 export function getBuiltinChromeCategoryList(): string[] {
-  // List of static Chrome categories, last updated at 2022-10-18 from HEAD of
+  // List of static Chrome categories, last updated at 2022-12-05 from HEAD of
   // Chromium's //base/trace_event/builtin_categories.h.
   return [
     'accessibility',
@@ -769,6 +765,7 @@ export function getBuiltinChromeCategoryList(): string[] {
     'SiteEngagement',
     'safe_browsing',
     'scheduler',
+    'scheduler.long_tasks',
     'screenlock_monitor',
     'segmentation_platform',
     'sequence_manager',
@@ -797,11 +794,13 @@ export function getBuiltinChromeCategoryList(): string[] {
     'views.frame',
     'viz',
     'vk',
+    'wakeup.flow',
     'wayland',
     'webaudio',
     'weblayer',
     'WebCore',
     'webrtc',
+    'webrtc_stats',
     'xr',
     'disabled-by-default-android_view_hierarchy',
     'disabled-by-default-animation-worklet',

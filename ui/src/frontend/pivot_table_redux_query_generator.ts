@@ -28,9 +28,7 @@ import {
 import {globals} from './globals';
 import {
   Aggregation,
-  AggregationFunction,
   TableColumn,
-  tableColumnEquals,
 } from './pivot_table_redux_types';
 
 export interface Table {
@@ -90,13 +88,6 @@ export interface ArgumentColumn {
   argument: string;
 }
 
-function outerAggregation(fn: AggregationFunction): AggregationFunction {
-  if (fn === 'COUNT') {
-    return 'SUM';
-  }
-  return fn;
-}
-
 // Exception thrown by query generator in case incoming parameters are not
 // suitable in order to build a correct query; these are caught by the UI and
 // displayed to the user.
@@ -118,7 +109,7 @@ export function areaFilter(area: Area): string {
 export function expression(column: TableColumn): string {
   switch (column.kind) {
     case 'regular':
-      return column.column;
+      return `${column.table}.${column.column}`;
     case 'argument':
       return extractArgumentExpression(column.argument);
   }
@@ -137,55 +128,6 @@ export function extractArgumentExpression(argument: string, table?: string) {
   return `extract_arg(${prefix}arg_set_id, ${sqliteString(argument)})`;
 }
 
-function generateInnerQuery(
-    pivots: TableColumn[],
-    aggregations: Aggregation[],
-    includeTrack: boolean,
-    area: Area,
-    constrainToArea: boolean): {query: string, groupByColumns: string[]} {
-  const aggregationColumns: string[] = [];
-
-  for (let i = 0; i < aggregations.length; i++) {
-    aggregationColumns.push(
-        `${aggregationExpression(aggregations[i])} as ${aggregationAlias(i)}`);
-  }
-
-  const selectColumns: string[] = [];
-  const groupByColumns: string[] = [];
-
-  let argumentCount = 0;
-  for (const column of pivots) {
-    switch (column.kind) {
-      case 'regular': {
-        selectColumns.push(column.column);
-        groupByColumns.push(column.column);
-        break;
-      }
-      case 'argument': {
-        const alias = `pivot_argument_${argumentCount++}`;
-        selectColumns.push(
-            `${extractArgumentExpression(column.argument)} as ${alias}`);
-        groupByColumns.push(alias);
-        break;
-      }
-    }
-  }
-  if (includeTrack) {
-    selectColumns.push('track_id');
-  }
-
-  const query = `
-    select
-      ${selectColumns.concat(aggregationColumns).join(',\n')}
-    from slice
-    ${(constrainToArea ? `where ${areaFilter(area)}` : '')}
-    group by ${
-      groupByColumns.concat(includeTrack ? ['track_id'] : []).join(', ')}
-  `;
-
-  return {query, groupByColumns};
-}
-
 export function aggregationIndex(pivotColumns: number, aggregationNo: number) {
   return pivotColumns + aggregationNo;
 }
@@ -202,62 +144,45 @@ export function generateQueryFromState(
     throw new QueryGeneratorError('No aggregations selected');
   }
 
-  const nonSlicePivots = state.selectedPivots;
-  const slicePivots = state.selectedSlicePivots;
-  if (slicePivots.length === 0 && nonSlicePivots.length === 0) {
-    throw new QueryGeneratorError('No pivots selected');
-  }
+  const pivots = state.selectedPivots;
 
-  const outerAggregations = [];
-  const innerQuery = generateInnerQuery(
-      slicePivots,
-      sliceTableAggregations,
-      nonSlicePivots.length > 0,
-      globals.state.areas[state.selectionArea.areaId],
-      state.constrainToArea);
+  const aggregations = sliceTableAggregations.map(
+      (agg, index) =>
+          `${aggregationExpression(agg)} as ${aggregationAlias(index)}`);
 
-  const prefixedSlicePivots =
-      innerQuery.groupByColumns.map((p) => `preaggregated.${p}`);
-  const renderedNonSlicePivots =
-      nonSlicePivots.map((pivot) => `${pivot.table}.${pivot.column}`);
-  const sortCriteria =
-      globals.state.nonSerializableState.pivotTableRedux.sortCriteria;
+  const renderedPivots =
+      pivots.map((pivot) => `${pivot.table}.${pivot.column}`);
   const sortClauses: string[] = [];
   for (let i = 0; i < sliceTableAggregations.length; i++) {
-    const agg = `preaggregated.${aggregationAlias(i)}`;
-    const fn = outerAggregation(sliceTableAggregations[i].aggregationFunction);
-    outerAggregations.push(`${fn}(${agg}) as ${aggregationAlias(i)}`);
-
-    if (sortCriteria !== undefined &&
-        tableColumnEquals(
-            sliceTableAggregations[i].column, sortCriteria.column)) {
-      sortClauses.push(`${aggregationAlias(i)} ${sortCriteria.order}`);
+    const sortDirection = sliceTableAggregations[i].sortDirection;
+    if (sortDirection !== undefined) {
+      sortClauses.push(`${aggregationAlias(i)} ${sortDirection}`);
     }
   }
 
   const joins = `
-    left join thread_track on thread_track.id = preaggregated.track_id
+    left join thread_track on thread_track.id = slice.track_id
     left join thread using (utid)
     left join process using (upid)
   `;
 
+  const whereClause = state.constrainToArea ?
+      `where ${areaFilter(globals.state.areas[state.selectionArea.areaId])}` :
+      '';
   const text = `
     select
-      ${
-      renderedNonSlicePivots.concat(prefixedSlicePivots, outerAggregations)
-          .join(',\n')}
-    from (
-      ${innerQuery.query}
-    ) preaggregated
-    ${nonSlicePivots.length > 0 ? joins : ''}
-    group by ${renderedNonSlicePivots.concat(prefixedSlicePivots).join(', ')}
+      ${renderedPivots.concat(aggregations).join(',\n')}
+    from slice
+    ${pivots.length > 0 ? joins : ''}
+    ${whereClause}
+    group by ${renderedPivots.join(', ')}
     ${sortClauses.length > 0 ? ('order by ' + sortClauses.join(', ')) : ''}
   `;
 
   return {
     text,
     metadata: {
-      pivotColumns: (nonSlicePivots as TableColumn[]).concat(slicePivots),
+      pivotColumns: pivots,
       aggregationColumns: sliceTableAggregations,
     },
   };

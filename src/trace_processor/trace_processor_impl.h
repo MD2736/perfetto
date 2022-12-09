@@ -30,10 +30,10 @@
 #include "perfetto/trace_processor/basic_types.h"
 #include "perfetto/trace_processor/status.h"
 #include "perfetto/trace_processor/trace_processor.h"
+#include "src/trace_processor/prelude/functions/create_function.h"
+#include "src/trace_processor/prelude/functions/create_view_function.h"
+#include "src/trace_processor/prelude/functions/import.h"
 #include "src/trace_processor/sqlite/db_sqlite_table.h"
-#include "src/trace_processor/sqlite/functions/create_function.h"
-#include "src/trace_processor/sqlite/functions/create_view_function.h"
-#include "src/trace_processor/sqlite/functions/import.h"
 #include "src/trace_processor/sqlite/query_cache.h"
 #include "src/trace_processor/sqlite/scoped_db.h"
 #include "src/trace_processor/trace_processor_storage_impl.h"
@@ -71,9 +71,7 @@ class TraceProcessorImpl : public TraceProcessor,
   base::Status RegisterMetric(const std::string& path,
                               const std::string& sql) override;
 
-  base::Status RegisterSqlModule(
-      const std::string& module_name,
-      const std::vector<std::pair<std::string, std::string>>& files) override;
+  base::Status RegisterSqlModule(SqlModule sql_module) override;
 
   base::Status ExtendMetricsProto(const uint8_t* data, size_t size) override;
 
@@ -136,7 +134,7 @@ class TraceProcessorImpl : public TraceProcessor,
   DescriptorPool pool_;
 
   // Map from module name to module contents. Used for IMPORT function.
-  base::FlatHashMap<std::string, sql_modules::Module> sql_modules_;
+  base::FlatHashMap<std::string, sql_modules::RegisteredModule> sql_modules_;
   std::vector<metrics::SqlMetricFile> sql_metrics_;
   std::unordered_map<std::string, std::string> proto_field_to_sql_metric_path_;
 
