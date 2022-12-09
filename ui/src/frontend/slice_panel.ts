@@ -29,7 +29,7 @@ function getDisplayName(name: string|undefined, id: number|undefined): string|
   if (name === undefined) {
     return id === undefined ? undefined : `${id}`;
   } else {
-    return id === undefined ? name : `${name} ${id}`;
+    return id === undefined ? name : `${name} `;
   }
 }
 

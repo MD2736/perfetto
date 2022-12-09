@@ -52,7 +52,7 @@ export class SliceDetailsPanel extends SlicePanel {
         m('tr',
           m('th', `Thread`),
           m('td',
-            `${threadInfo.threadName} [${threadInfo.tid}]`,
+            `${threadInfo.threadName} `,
             m('i.material-icons.grey',
               {onclick: () => this.goToThread(), title: 'Go to thread'},
               'call_made'))),
@@ -147,7 +147,7 @@ export class SliceDetailsPanel extends SlicePanel {
                 details.wakeupTs - globals.state.traceTime.startSec)} on CPU ${
             details.wakerCpu} by`;
         const processText = `P: ${threadInfo.procName} [${threadInfo.pid}]`;
-        const threadText = `T: ${threadInfo.threadName} [${threadInfo.tid}]`;
+        const threadText = `T: ${threadInfo.threadName} `;
         ctx.fillText(displayText, startDraw.x + 20, startDraw.y + 20);
         ctx.fillText(processText, startDraw.x + 20, startDraw.y + 37);
         ctx.fillText(threadText, startDraw.x + 20, startDraw.y + 55);

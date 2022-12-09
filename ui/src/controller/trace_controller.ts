@@ -36,7 +36,7 @@ import {
   QuantizedLoad,
   ThreadDesc,
 } from '../frontend/globals';
-import {showModal} from '../frontend/modal';
+//import {showModal} from '../frontend/modal';
 import {
   publishHasFtrace,
   publishMetricError,
@@ -148,26 +148,6 @@ const ENABLE_CHROME_RELIABLE_RANGE_ANNOTATION_FLAG = featureFlags.register({
   defaultValue: false,
 });
 
-// A local storage key where the indication that JSON warning has been shown is
-// stored.
-const SHOWN_JSON_WARNING_KEY = 'shownJsonWarning';
-
-function showJsonWarning() {
-  showModal({
-    title: 'Warning',
-    content:
-        m('div',
-          m('span',
-            'Perfetto UI features are limited for JSON traces. ',
-            'We recommend recording ',
-            m('a',
-              {href: 'https://perfetto.dev/docs/quickstart/chrome-tracing'},
-              'proto-format traces'),
-            ' from Chrome.'),
-          m('br')),
-    buttons: [],
-  });
-}
 
 // TraceController handles handshakes with the frontend for everything that
 // concerns a single trace. It owns the WASM trace processor engine, handles
@@ -400,7 +380,13 @@ export class TraceController extends Controller<States> {
     }
 
     // traceUuid will be '' if the trace is not cacheable (URL or RPC).
-    const traceUuid = await this.cacheCurrentTrace();
+    var traceUuid = '';
+    if (typeof navigator === 'object' && typeof navigator.userAgent === 'string' && navigator.userAgent.indexOf('Electron') >= 0) {
+      ; // do not use cache when using Electron
+    }
+    else {
+      traceUuid = await this.cacheCurrentTrace();
+    }
 
     const traceTime = await this.engine.getTraceTimeBounds();
     const startSec = traceTime.start;
@@ -409,25 +395,6 @@ export class TraceController extends Controller<States> {
       startSec,
       endSec,
     };
-
-    const shownJsonWarning =
-        window.localStorage.getItem(SHOWN_JSON_WARNING_KEY) !== null;
-
-    // Show warning if the trace is in JSON format.
-    const query = `select str_value from metadata where name = 'trace_type'`;
-    const result = await assertExists(this.engine).query(query);
-    const traceType = result.firstRow({str_value: STR}).str_value;
-    const isJsonTrace = traceType == 'json';
-    if (!shownJsonWarning) {
-      // When in embedded mode, the host app will control which trace format
-      // it passes to Perfetto, so we don't need to show this warning.
-      if (isJsonTrace && !frontendGlobals.embeddedMode) {
-        showJsonWarning();
-        // Save that the warning has been shown. Value is irrelevant since only
-        // the presence of key is going to be checked.
-        window.localStorage.setItem(SHOWN_JSON_WARNING_KEY, 'true');
-      }
-    }
 
     const emptyOmniboxState = {
       omnibox: '',

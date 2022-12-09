@@ -278,7 +278,7 @@ function main() {
     // This forwards the messages from the extension to the controller.
     extensionPort.onMessage.addListener(
         (message: object, _port: chrome.runtime.Port) => {
-          if (isGetCategoriesResponse(message)) {
+           if (isGetCategoriesResponse(message)) {
             globals.dispatch(Actions.setChromeCategories(message));
             return;
           }
