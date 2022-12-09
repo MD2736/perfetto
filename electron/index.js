@@ -33,7 +33,7 @@ const createWindow = () => {
         width: 1284,
         height: 960,
         autoHideMenuBar: true,
-        icon: 'logo-128.png'
+        icon: 'logo-128.png',
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
         }

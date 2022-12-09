@@ -1,6 +1,15 @@
+
+
 module.exports = {
   packagerConfig: {
-  icon: 'logo-128'
+  description: "Perfetto for Gecho",
+  icon: 'logo-128.ico',
+  appVersion: "10.0.0",
+  appCopyright: "Copyright (C) Matrox Electronic Systems Ltd., 1992-2023 All rights reserved",
+  Win32MetadataOptions:{
+      FileDescription: "Perfetto for Gecho",
+      ProductName: "Perfetto"
+  }
   },
   rebuildConfig: {},
   makers: [

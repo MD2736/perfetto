@@ -240,13 +240,10 @@ async function main() {
     generateImports('ui/src/tracks', 'all_tracks.ts');
     compileProtos();
     genVersion();
-    transpileTsProject('ui/src/service_worker');
     transpileTsProject('ui');
-    console.log('!!!!!!!!!!!service_workder');
-    genServiceWorkerManifestJson();
-   // bundleJs('rollup-serviceworker.config');
+    transpileTsProject('ui/src/service_worker');
     bundleJs('rollup.config.js');
-
+    genServiceWorkerManifestJson();
 
     // Watches the /dist. When changed:
     // - Notifies the HTTP live reload clients.
@@ -487,7 +484,6 @@ function genServiceWorkerManifestJson() {
     }, skipRegex);
     const manifestJson = JSON.stringify(manifest, null, 2);
     fs.writeFileSync(pjoin(cfg.outDistDir, 'manifest.json'), manifestJson);
-    console.log('!!!!!!!!!!!genServiceWorkerManifestJson');
   }
   addTask(makeManifest, []);
 }

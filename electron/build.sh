@@ -10,7 +10,7 @@ cp -r ../out/ui/ui/dist/* ./perfetto/src
 
 cd perfetto/
 npm run make
-npm run makelinux
+npm run makewin32
 
 
 
